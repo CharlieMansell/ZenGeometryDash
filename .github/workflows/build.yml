@@ -11,7 +11,35 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  # Windows desktop app (Electron): a real installer + portable exe,
+  # no console window, no browser tab.
+  build-windows-app:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check levels are playable
+        run: node tools/check-levels.mjs
+
+      - name: Install Electron tooling
+        run: npm ci
+
+      - name: Build Windows installer + portable exe
+        run: npx electron-builder --win --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-app
+          path: |
+            dist/ZenGeometryDash-Setup.exe
+            dist/ZenGeometryDash-Portable.exe
+
+  # Lightweight Go server builds for macOS / Linux (game opens in browser)
+  build-server:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,46 +48,48 @@ jobs:
         with:
           go-version: '1.24'
 
-      - name: Check levels are playable
-        run: node tools/check-levels.mjs
-
-      # Embed icon, manifest, and version info into the exe. Together with
-      # NOT stripping symbols and keeping the console subsystem, this avoids
-      # Windows Defender heuristics that false-flag bare Go binaries.
-      - name: Embed Windows resources (icon + version info)
-        run: go run github.com/tc-hib/go-winres@v0.3.3 make
-
-      - name: Build Windows exe
-        run: GOOS=windows GOARCH=amd64 go build -trimpath -o dist/ZenGeometryDash.exe .
-
       - name: Build macOS binary (Apple Silicon)
-        run: GOOS=darwin GOARCH=arm64 go build -trimpath -ldflags "-s -w" -o dist/ZenGeometryDash-mac .
+        run: GOOS=darwin GOARCH=arm64 go build -trimpath -o dist/ZenGeometryDash-mac .
 
       - name: Build Linux binary
-        run: GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-s -w" -o dist/ZenGeometryDash-linux .
+        run: GOOS=linux GOARCH=amd64 go build -trimpath -o dist/ZenGeometryDash-linux .
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: ZenGeometryDash
+          name: server-binaries
+          path: dist/
+
+  release:
+    if: github.event_name == 'push'
+    needs: [build-windows-app, build-server]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
           path: dist/
 
       # Every push to the default branch refreshes the "latest" release,
       # so the download link for Zen never changes.
       - name: Publish "latest" release
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
           name: Zen Geometry Dash — Latest Build
           body: |
-            Download **ZenGeometryDash.exe** below, then double-click it to play!
+            ### 🎮 For Zen: download **ZenGeometryDash-Setup.exe** below!
 
-            - A small console window opens with the game — **keep it open while
-              playing**, close it to quit.
-            - Windows may show a SmartScreen warning the first time — click
-              "More info" → "Run anyway". That's just because the exe isn't
-              code-signed.
+            Run it once and the game installs with a desktop shortcut — after
+            that just double-click the shortcut to play.
+
+            - **ZenGeometryDash-Setup.exe** — Windows installer (recommended)
+            - **ZenGeometryDash-Portable.exe** — single-file version, no install
+            - **ZenGeometryDash-mac / -linux** — opens the game in your browser
+
+            Windows may show a SmartScreen warning the first time — click
+            "More info" → "Run anyway". That's just because the app isn't
+            code-signed.
           files: dist/*
           prerelease: false
 

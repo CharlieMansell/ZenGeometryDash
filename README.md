@@ -1,43 +1,42 @@
 # ⬛ Zen Geometry Dash
 
-A Geometry Dash–style rhythm platformer made for **Zen** 💙 — five handcrafted
-levels, chiptune music, jump pads, orbs, rocket-ship sections, and a chill
-**Zen Mode** where you can never die.
+A Geometry Dash–style rhythm platformer made for **Zen** 💙 — eight handcrafted
+levels, chiptune music, jump pads, orbs, rocket-ship sections, a character
+editor, local **2-player co-op**, and a chill **Zen Mode** where you can never
+die.
 
-The whole game compiles into a **single exe**: a tiny Go web server with the
-game embedded inside. Double-click it and it opens in your browser. No
-installs, no internet needed.
+The Windows version is a real desktop app (Electron) — no console window, no
+browser tab. macOS/Linux builds run as a tiny single-file server that opens
+the game in your browser.
 
 ## 🎮 How Zen gets the game
 
 1. Go to this repo's **[Releases](../../releases)** page.
-2. Download **`ZenGeometryDash.exe`** from the latest release.
-3. Double-click it. The game opens in the browser automatically.
-   - Windows SmartScreen may warn the first time (the exe isn't signed) —
-     click **More info → Run anyway**.
-   - If Defender blocks the download, open **Windows Security → Virus &
-     threat protection → Protection history**, find the entry and choose
-     **Actions → Allow**. (Unsigned hobby exes sometimes get false-flagged;
-     the build embeds version info and keeps symbols to minimise this.)
-   - Keep the little black window open while playing; close it to quit.
-
-There are also `ZenGeometryDash-mac` and `ZenGeometryDash-linux` builds.
+2. Download **`ZenGeometryDash-Setup.exe`** and run it once — the game
+   installs with a desktop shortcut. (Or grab
+   `ZenGeometryDash-Portable.exe` for a no-install single file.)
+   - Windows SmartScreen may warn the first time (the app isn't code-signed)
+     — click **More info → Run anyway**.
+3. Double-click the shortcut and play!
 
 ## 🕹️ Controls
 
-| Action | Keys |
-| --- | --- |
-| Jump (hold to keep jumping) | **Space**, **↑**, **W**, click, or tap |
-| Fly the rocket up | hold jump |
-| Pause | **Esc** or **P** |
-| Restart level | **R** |
-| Toggle sound | **M** |
-| Toggle ☯ Zen Mode (no dying!) | **Z** |
+| Action | Player 1 | Player 2 (2-Player mode) |
+| --- | --- | --- |
+| Jump / fly (hold to repeat) | **Space**, **W**, click, tap left half | **↑**, **Enter**, tap right half |
+| Pause | **Esc** / **P** | |
+| Restart level | **R** | |
+| Toggle sound | **M** | |
+| Toggle ☯ Zen Mode (no dying!) | **Z** | |
+| Fullscreen (desktop app) | **F11** | |
 
 - 🟡 **Yellow pads** bounce you sky-high automatically.
 - 🟡 **Yellow orbs** give a mid-air jump — press while touching one.
 - 🌀 **Portals** switch between cube and rocket-ship mode.
 - 🏁 Reach the striped flag to win. Fewer attempts = more stars!
+- 😎 **Character** on the menu: pick your cube's color and face.
+- 👥 **2-Player**: two cubes run together — if either crashes, the team
+  restarts. Teamwork!
 
 ## 📦 Levels
 
@@ -46,25 +45,34 @@ There are also `ZenGeometryDash-mac` and `ZenGeometryDash-linux` builds.
 3. **Sky Surfer** — first rocket-ship ride
 4. **Block Party** — platforming gauntlet
 5. **Zen Master** — everything at once
+6. **Pad Parade** — bounce-pad bonanza
+7. **Orbit** — trust the orbs
+8. **Twin Peaks** — the full gauntlet
 
 ## 🛠️ Development
 
-Requirements: Go 1.24+ (and Node for the level checker). No other dependencies.
+The game itself is dependency-free HTML5 canvas (`web/`). Two shells wrap it:
 
 ```bash
-go run .                        # build & play locally
+# Electron desktop app (Windows builds in CI)
+npm ci
+npm start                       # run the desktop app locally
+npx electron-builder --win      # build installer + portable exe
+
+# Go server (macOS / Linux release binaries)
+go run .                        # serves the game and opens your browser
+
 node tools/check-levels.mjs     # verify all levels are humanly possible
-GOOS=windows GOARCH=amd64 go build -ldflags "-s -w -H=windowsgui" -o ZenGeometryDash.exe .
 ```
 
-- `main.go` — tiny web server, embeds `web/` into the binary
-- `web/game.js` — engine: physics, collisions, rendering, menus
+- `web/game.js` — engine: physics, collisions, rendering, menus, 2P, skins
 - `web/levels.js` — levels, written with a small builder DSL
 - `web/audio.js` — procedural chiptune music + sound effects (no audio files)
+- `electron/main.js` — desktop app shell
+- `main.go` — tiny web server alternative, embeds `web/` into the binary
 - `tools/check-levels.mjs` — static playability checks (runs in CI)
 
-GitHub Actions builds Windows/macOS/Linux binaries on every push and keeps a
-**`latest`** release updated, so the download link never changes.
+GitHub Actions builds everything on every push and keeps a **`latest`**
+release updated, so the download link never changes.
 
-Progress (best %, stars, Zen Mode setting) is saved in the browser's
-localStorage.
+Progress (best %, stars, character, settings) is saved locally.

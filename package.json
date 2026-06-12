@@ -1,0 +1,38 @@
+{
+  "name": "zen-geometry-dash",
+  "productName": "Zen Geometry Dash",
+  "version": "1.0.0",
+  "description": "A Geometry Dash style rhythm platformer made for Zen",
+  "author": "Charlie Mansell",
+  "license": "MIT",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win --publish never"
+  },
+  "devDependencies": {
+    "electron": "^42.4.0",
+    "electron-builder": "^26.15.2"
+  },
+  "build": {
+    "appId": "com.charliemansell.zengeometrydash",
+    "productName": "Zen Geometry Dash",
+    "files": [
+      "electron/**",
+      "web/**"
+    ],
+    "win": {
+      "target": ["nsis", "portable"],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "artifactName": "ZenGeometryDash-Setup.exe",
+      "deleteAppDataOnUninstall": true
+    },
+    "portable": {
+      "artifactName": "ZenGeometryDash-Portable.exe"
+    }
+  }
+}

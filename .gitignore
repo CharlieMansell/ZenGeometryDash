@@ -4,3 +4,6 @@ dist/
 ZenGeometryDash.exe
 ZenGeometryDash-mac
 ZenGeometryDash-linux
+
+# electron
+node_modules/

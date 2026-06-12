@@ -216,6 +216,64 @@
           .flat(3).spikes(2)
           .flat(14);
       }
+    },
+    {
+      name: 'Pad Parade',
+      hint: 'Bounce pads do the jumping — you do the surviving!',
+      theme: { bgTop: '#042f2e', bgBot: '#0d9488', block: '#14b8a6', blockEdge: '#99f6e4', accent: '#ffe94a', floor: '#064e4b' },
+      music: { bpm: 128, root: 220, mood: 1 },
+      build: function (b) {
+        b.flat(8).pad().spikes(3)
+          .flat(6).pad().pit(4)
+          .flat(5).spikes(2)
+          .flat(6).pad().spikes(3)
+          .flat(5).box(2, 1).spikes(2).box(2, 1)
+          .flat(6).pad().pit(4)
+          .flat(6).spikes(2)
+          .flat(4).spikes(2)
+          .flat(5).pad().spikes(3)
+          .flat(5).spikes(1)
+          .flat(12);
+      }
+    },
+    {
+      name: 'Orbit',
+      hint: 'Trust the orbs — tap in the air to bounce off them!',
+      theme: { bgTop: '#1e1b4b', bgBot: '#4338ca', block: '#6366f1', blockEdge: '#c7d2fe', accent: '#fb923c', floor: '#27246b' },
+      music: { bpm: 130, root: 247, mood: 2 },
+      build: function (b) {
+        b.flat(8).spikes(2)
+          .flat(6).orbAt(2, 2).orbAt(4, 2).pit(7)
+          .flat(6).spikes(2)
+          .flat(5).orbAt(2, 2).pit(5)
+          .flat(6).platform(4, 1, { under: 'spikes' })
+          .flat(5).spikes(2)
+          .flat(5).orbAt(2, 2).orbAt(4, 2).orbAt(6, 2).pit(9)
+          .flat(6).spikes(2)
+          .flat(4).spikes(2)
+          .flat(12);
+      }
+    },
+    {
+      name: 'Twin Peaks',
+      hint: 'The full gauntlet — blocks, ships, orbs and pads!',
+      theme: { bgTop: '#3b0764', bgBot: '#9333ea', block: '#a855f7', blockEdge: '#e9d5ff', accent: '#4ade80', floor: '#4c1d95' },
+      music: { bpm: 136, root: 196, mood: 3 },
+      build: function (b) {
+        b.flat(8).spikes(2)
+          .flat(4).box(2, 1).box(2, 2).pit(3)
+          .flat(5).spikes(2)
+          .flat(5).portal('ship', 0)
+          .flat(3)
+          .tunnel(12, 0, 5, { up: [4], down: [8] })
+          .tunnel(12, 0, 4, { up: [3], down: [9] })
+          .flat(2).portal('cube', 0)
+          .flat(5).pad().spikes(3)
+          .flat(5).orbAt(2, 2).orbAt(4, 2).pit(6)
+          .flat(5).spikes(2)
+          .flat(3).spikes(2)
+          .flat(12);
+      }
     }
   ];
 
