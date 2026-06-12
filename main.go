@@ -1,4 +1,4 @@
-// Zen Geometry Dash - a tiny local web server that serves the game
+// Zen's Games - a tiny local web server that serves the arcade
 // and opens it in the default browser. Compiles to a single exe.
 package main
 
@@ -34,7 +34,7 @@ func main() {
 
 	url := fmt.Sprintf("http://%s/", ln.Addr().String())
 	fmt.Println()
-	fmt.Println("  ★ Zen Geometry Dash is running! ★")
+	fmt.Println("  ★ Zen's Games arcade is running! ★")
 	fmt.Println("  Opening", url, "in your browser...")
 	fmt.Println("  Keep this window open while you play. Close it to quit.")
 	fmt.Println()

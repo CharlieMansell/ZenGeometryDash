@@ -24,23 +24,13 @@
   var PW = 36;                // player size
   var STEP = 1 / 120;         // fixed physics timestep
 
-  // ---- character skins ----
-  var SKIN_COLORS = ['#00e5ff', '#ff9a3d', '#7dff8a', '#ff5a5a', '#ffe94a', '#ff7ad9', '#b07aff', '#f1f5f9'];
-  var FACE_COUNT = 5;         // classic, happy, cool, ninja, wow
-  var skinColor = 0, skinFace = 0;
-  try {
-    skinColor = Math.min(SKIN_COLORS.length - 1, parseInt(localStorage.getItem('zgd_skin_c') || '0', 10) || 0);
-    skinFace = Math.min(FACE_COUNT - 1, parseInt(localStorage.getItem('zgd_skin_f') || '0', 10) || 0);
-  } catch (e) {}
-  function saveSkin() {
-    try {
-      localStorage.setItem('zgd_skin_c', String(skinColor));
-      localStorage.setItem('zgd_skin_f', String(skinFace));
-    } catch (e) {}
-  }
-  function p2Color() { return skinColor === 1 ? SKIN_COLORS[0] : SKIN_COLORS[1]; }
-  function playerColor(idx) { return idx === 0 ? SKIN_COLORS[skinColor] : p2Color(); }
-  function playerFace(idx) { return idx === 0 ? skinFace : 1; }
+  // ---- character skins (shared across all of Zen's Games) ----
+  var SKINS = window.ZG_SKINS;
+  var SKIN_COLORS = SKINS.COLORS;
+  var FACE_COUNT = SKINS.FACE_COUNT;
+  var editingPlayer = 0;      // which player the character screen edits
+  function playerColor(idx) { return SKINS.get(idx).color; }
+  function playerFace(idx) { return SKINS.get(idx).face; }
 
   // ---- state ----
   var state = 'menu';         // menu | skin | play | dead | win | pause
@@ -654,65 +644,8 @@
     ctx.restore();
   }
 
-  // face styles: 0 classic, 1 happy, 2 cool, 3 ninja, 4 wow
-  function drawFace(face) {
-    ctx.fillStyle = '#0a1a24';
-    if (face === 0) {
-      ctx.fillRect(-10, -8, 6, 9);
-      ctx.fillRect(4, -8, 6, 9);
-      roundRect(-8, 5, 16, 4, 2);
-      ctx.fill();
-    } else if (face === 1) {
-      ctx.beginPath();
-      ctx.arc(-7, -5, 3.6, 0, Math.PI * 2);
-      ctx.arc(7, -5, 3.6, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#0a1a24';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.arc(0, 3, 8, 0.25, Math.PI - 0.25);
-      ctx.stroke();
-    } else if (face === 2) {
-      roundRect(-13, -9, 26, 8, 3);      // sunglasses
-      ctx.fill();
-      ctx.fillRect(-15, -8, 30, 3);
-      ctx.strokeStyle = '#0a1a24';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(-2, 7);
-      ctx.lineTo(9, 5);
-      ctx.stroke();
-    } else if (face === 3) {
-      ctx.fillRect(-15, -10, 30, 7);     // ninja band
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(-10, -8, 5, 3);
-      ctx.fillRect(5, -8, 5, 3);
-      ctx.fillStyle = '#0a1a24';
-      ctx.fillRect(-5, 6, 10, 3);
-    } else {
-      ctx.beginPath();
-      ctx.arc(-7, -5, 4, 0, Math.PI * 2);
-      ctx.arc(7, -5, 4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(0, 6, 5, 0, Math.PI * 2);  // wow mouth
-      ctx.fill();
-    }
-  }
-
   function drawCube(color, face) {
-    ctx.save();
-    ctx.shadowColor = color;
-    ctx.shadowBlur = 12;
-    ctx.fillStyle = color;
-    roundRect(-PW / 2, -PW / 2, PW, PW, 7);
-    ctx.fill();
-    ctx.restore();
-    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
-    ctx.lineWidth = 2.5;
-    roundRect(-PW / 2 + 3, -PW / 2 + 3, PW - 6, PW - 6, 5);
-    ctx.stroke();
-    drawFace(face);
+    SKINS.drawCube(ctx, color, face);
   }
 
   function drawAfterimages() {
@@ -888,7 +821,7 @@
 
     ctx.textAlign = 'center';
     ctx.save();
-    ctx.shadowColor = SKIN_COLORS[skinColor];
+    ctx.shadowColor = playerColor(0);
     ctx.shadowBlur = 22 + 8 * Math.sin(time * 2.5);
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 44px "Trebuchet MS", sans-serif';
@@ -897,6 +830,11 @@
     ctx.font = 'bold 15px "Trebuchet MS", sans-serif';
     ctx.fillStyle = 'rgba(255,255,255,0.75)';
     ctx.fillText('Jump the spikes. Ride the rockets. Reach the flag!', W / 2, 90);
+
+    button(14, 14, 140, 36, '⌂ All Games', function () {
+      AUDIO.click();
+      location.href = '../index.html';
+    });
 
     // level cards: 2 rows of 4
     var cw = 210, ch = 128, gap = 14;
@@ -985,49 +923,61 @@
     drawBG(LEVELS[0].theme);
     drawFloor(LEVELS[0].theme);
 
+    var sk = SKINS.get(editingPlayer);
+    var other = SKINS.get(1 - editingPlayer);
+
     ctx.textAlign = 'center';
     ctx.save();
-    ctx.shadowColor = SKIN_COLORS[skinColor];
+    ctx.shadowColor = sk.color;
     ctx.shadowBlur = 20;
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 38px "Trebuchet MS", sans-serif';
-    ctx.fillText('CHOOSE YOUR CUBE', W / 2, 64);
+    ctx.fillText('CHOOSE YOUR CUBES', W / 2, 56);
     ctx.restore();
 
-    // big bouncing preview
+    // which player are we editing?
+    button(430, 80, 162, 40, '🎮 Player 1',
+      function () { editingPlayer = 0; AUDIO.click(); },
+      editingPlayer === 0 ? 'rgba(0,229,255,0.35)' : undefined);
+    button(604, 80, 162, 40, '🎮 Player 2',
+      function () { editingPlayer = 1; AUDIO.click(); },
+      editingPlayer === 1 ? 'rgba(255,154,61,0.35)' : undefined);
+
+    // big bouncing preview of the player being edited
     var bounce = Math.abs(Math.sin(time * 2.6));
     ctx.save();
-    ctx.translate(210, 300 - bounce * 70);
+    ctx.translate(210, 290 - bounce * 70);
     ctx.rotate(Math.sin(time * 1.6) * 0.3);
     ctx.scale(2.6, 2.6);
-    drawCube(SKIN_COLORS[skinColor], skinFace);
+    drawCube(sk.color, sk.face);
     ctx.restore();
+    ctx.textAlign = 'center';
     ctx.fillStyle = 'rgba(255,255,255,0.6)';
     ctx.font = 'bold 14px "Trebuchet MS", sans-serif';
-    ctx.fillText('Player 1', 210, 408);
+    ctx.fillText('Player ' + (editingPlayer + 1), 210, 398);
 
-    // player 2 mini preview
+    // the other player's cube, small
     ctx.save();
-    ctx.translate(210, 432 + Math.sin(time * 4) * -3);
-    drawCube(p2Color(), 1);
+    ctx.translate(210, 428 + Math.sin(time * 4) * -3);
+    drawCube(other.color, other.face);
     ctx.restore();
     ctx.fillStyle = 'rgba(255,255,255,0.45)';
     ctx.font = '12px "Trebuchet MS", sans-serif';
-    ctx.fillText('Player 2 (auto)', 210, 470);
+    ctx.fillText('Player ' + (2 - editingPlayer), 210, 466);
 
     // color swatches
     ctx.textAlign = 'left';
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 18px "Trebuchet MS", sans-serif';
-    ctx.fillText('Color', 430, 122);
-    var sw = 58, sgap = 14;
+    ctx.fillText('Color', 430, 152);
+    var sw = 54, sgap = 14;
     for (var ci = 0; ci < SKIN_COLORS.length; ci++) {
       (function (ci) {
         var x = 430 + (ci % 4) * (sw + sgap);
-        var y = 138 + Math.floor(ci / 4) * (sw + sgap);
-        uiButtons.push({ x: x, y: y, w: sw, h: sw, action: function () { skinColor = ci; saveSkin(); AUDIO.click(); } });
+        var y = 164 + Math.floor(ci / 4) * (sw + sgap);
+        uiButtons.push({ x: x, y: y, w: sw, h: sw, action: function () { SKINS.set(editingPlayer, ci, null); AUDIO.click(); } });
         ctx.save();
-        if (ci === skinColor || hovered(x, y, sw, sw)) {
+        if (ci === sk.colorIdx || hovered(x, y, sw, sw)) {
           ctx.shadowColor = SKIN_COLORS[ci];
           ctx.shadowBlur = 16;
         }
@@ -1035,8 +985,8 @@
         roundRect(x, y, sw, sw, 12);
         ctx.fill();
         ctx.shadowBlur = 0;
-        ctx.strokeStyle = ci === skinColor ? '#ffffff' : 'rgba(255,255,255,0.3)';
-        ctx.lineWidth = ci === skinColor ? 4 : 2;
+        ctx.strokeStyle = ci === sk.colorIdx ? '#ffffff' : 'rgba(255,255,255,0.3)';
+        ctx.lineWidth = ci === sk.colorIdx ? 4 : 2;
         roundRect(x, y, sw, sw, 12);
         ctx.stroke();
         ctx.restore();
@@ -1046,30 +996,29 @@
     // face picker
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 18px "Trebuchet MS", sans-serif';
-    ctx.fillText('Face', 430, 318);
-    var fw = 64;
+    ctx.fillText('Face', 430, 330);
+    var fw = 62;
     for (var fi = 0; fi < FACE_COUNT; fi++) {
       (function (fi) {
         var x = 430 + fi * (fw + 12);
-        var y = 334;
-        uiButtons.push({ x: x, y: y, w: fw, h: fw, action: function () { skinFace = fi; saveSkin(); AUDIO.click(); } });
+        var y = 342;
+        uiButtons.push({ x: x, y: y, w: fw, h: fw, action: function () { SKINS.set(editingPlayer, null, fi); AUDIO.click(); } });
         ctx.save();
         ctx.fillStyle = 'rgba(0,0,0,0.3)';
         roundRect(x, y, fw, fw, 12);
         ctx.fill();
-        ctx.strokeStyle = fi === skinFace ? '#ffffff' : 'rgba(255,255,255,0.3)';
-        ctx.lineWidth = fi === skinFace ? 4 : 2;
+        ctx.strokeStyle = fi === sk.faceIdx ? '#ffffff' : 'rgba(255,255,255,0.3)';
+        ctx.lineWidth = fi === sk.faceIdx ? 4 : 2;
         if (hovered(x, y, fw, fw)) ctx.strokeStyle = '#ffffff';
         roundRect(x, y, fw, fw, 12);
         ctx.stroke();
         ctx.translate(x + fw / 2, y + fw / 2);
-        ctx.scale(1.1, 1.1);
-        drawCube(SKIN_COLORS[skinColor], fi);
+        drawCube(sk.color, fi);
         ctx.restore();
       })(fi);
     }
 
-    button(W / 2 - 110, 444, 220, 46, '◀ Back', function () { AUDIO.click(); state = 'menu'; }, 'rgba(0,229,255,0.25)');
+    button(W / 2 - 110, 448, 220, 44, '◀ Back', function () { AUDIO.click(); state = 'menu'; }, 'rgba(0,229,255,0.25)');
   }
 
   function toggleZen() {

@@ -1,4 +1,4 @@
-// Zen Geometry Dash - Electron shell.
+// Zen's Games - Electron shell.
 // Opens the game in a proper desktop window (no console, no browser).
 const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
@@ -12,7 +12,7 @@ function createWindow() {
     backgroundColor: '#06070d',
     autoHideMenuBar: true,
     useContentSize: true,
-    title: 'Zen Geometry Dash',
+    title: "Zen's Games",
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false

@@ -10,7 +10,7 @@
 //   - the first 6 columns must be hazard-free (spawn area)
 import { readFileSync } from 'fs';
 
-eval(readFileSync(new URL('../web/levels.js', import.meta.url), 'utf8'));
+eval(readFileSync(new URL('../web/geometry/levels.js', import.meta.url), 'utf8'));
 const LEVELS = globalThis.ZGD_LEVELS;
 const MAXH = globalThis.ZGD_MAXH;
 

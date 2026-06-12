@@ -1,8 +1,8 @@
 {
-  "name": "zen-geometry-dash",
-  "productName": "Zen Geometry Dash",
+  "name": "zens-games",
+  "productName": "Zen's Games",
   "version": "1.0.0",
-  "description": "A Geometry Dash style rhythm platformer made for Zen",
+  "description": "Zen's arcade \u2014 a collection of games built by Zen & Dad",
   "author": "Charlie Mansell",
   "license": "MIT",
   "main": "electron/main.js",
@@ -15,24 +15,27 @@
     "electron-builder": "^26.15.2"
   },
   "build": {
-    "appId": "com.charliemansell.zengeometrydash",
-    "productName": "Zen Geometry Dash",
+    "appId": "com.charliemansell.zensgames",
+    "productName": "Zen's Games",
     "files": [
       "electron/**",
       "web/**"
     ],
     "win": {
-      "target": ["nsis", "portable"],
+      "target": [
+        "nsis",
+        "portable"
+      ],
       "icon": "build/icon.png"
     },
     "nsis": {
       "oneClick": true,
       "perMachine": false,
-      "artifactName": "ZenGeometryDash-Setup.exe",
+      "artifactName": "ZensGames-Setup.exe",
       "deleteAppDataOnUninstall": true
     },
     "portable": {
-      "artifactName": "ZenGeometryDash-Portable.exe"
+      "artifactName": "ZensGames-Portable.exe"
     }
   }
 }

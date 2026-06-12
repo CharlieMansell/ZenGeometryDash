@@ -2,17 +2,141 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Zen Geometry Dash</title>
-<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zen's Games</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='15' y='15' width='70' height='70' rx='12' fill='%2300e5ff'/><rect x='32' y='38' width='14' height='14' fill='%23062030'/><rect x='56' y='38' width='14' height='14' fill='%23062030'/><rect x='34' y='62' width='34' height='8' rx='4' fill='%23062030'/></svg>">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; min-height: 100%;
+    font-family: "Trebuchet MS", Verdana, sans-serif;
+    color: #fff;
+    background: linear-gradient(160deg, #060d1f 0%, #0d1f45 45%, #1a1040 100%);
+    background-attachment: fixed;
+    overflow-x: hidden;
+  }
+  /* floating background shapes */
+  .shape {
+    position: fixed; opacity: 0.06; pointer-events: none;
+    border: 3px solid #fff;
+    animation: drift 26s linear infinite;
+  }
+  @keyframes drift {
+    from { transform: translateY(110vh) rotate(0deg); }
+    to   { transform: translateY(-30vh) rotate(360deg); }
+  }
+
+  header { text-align: center; padding: 48px 16px 8px; }
+  h1 {
+    font-size: clamp(40px, 7vw, 72px);
+    letter-spacing: 3px;
+    text-shadow: 0 0 24px #00e5ff, 0 0 60px rgba(0,229,255,0.5);
+  }
+  h1 .zap { color: #00e5ff; }
+  header p { margin-top: 10px; font-size: 18px; color: rgba(255,255,255,0.7); }
+
+  main {
+    max-width: 1060px; margin: 30px auto 20px; padding: 0 20px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 22px;
+  }
+  .card {
+    border-radius: 18px; padding: 26px 24px 22px;
+    background: rgba(255,255,255,0.06);
+    border: 2px solid rgba(255,255,255,0.18);
+    text-decoration: none; color: #fff; display: block;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s;
+    position: relative;
+  }
+  .card.playable:hover {
+    transform: translateY(-6px) scale(1.02);
+    border-color: var(--glow);
+    box-shadow: 0 0 30px var(--glow);
+  }
+  .card .icon { font-size: 52px; }
+  .card h2 { margin: 10px 0 6px; font-size: 26px; }
+  .card p { color: rgba(255,255,255,0.65); font-size: 15px; line-height: 1.45; }
+  .card .tag {
+    position: absolute; top: 18px; right: 18px;
+    font-size: 12px; font-weight: bold; letter-spacing: 1px;
+    padding: 5px 11px; border-radius: 20px;
+    background: var(--glow); color: #04121c;
+  }
+  .card.soon { opacity: 0.55; cursor: default; }
+  .card.soon .tag { background: rgba(255,255,255,0.25); color: #fff; }
+  .card.soon ul { margin: 8px 0 0 18px; color: rgba(255,255,255,0.6); font-size: 14px; line-height: 1.7; }
+
+  .play {
+    display: inline-block; margin-top: 16px;
+    padding: 10px 26px; border-radius: 10px;
+    font-weight: bold; font-size: 16px; letter-spacing: 1px;
+    background: var(--glow); color: #04121c;
+    box-shadow: 0 0 18px var(--glow);
+  }
+  footer {
+    text-align: center; padding: 26px 12px 34px;
+    color: rgba(255,255,255,0.45); font-size: 14px;
+  }
+</style>
 </head>
 <body>
-<div id="wrap">
-  <canvas id="game" width="960" height="540"></canvas>
-</div>
-<script src="levels.js"></script>
-<script src="audio.js"></script>
-<script src="game.js"></script>
+  <header>
+    <h1><span class="zap">⬛</span> ZEN'S GAMES <span class="zap">⬛</span></h1>
+    <p>Pick a game and have fun. New games appear here as we build them!</p>
+  </header>
+
+  <main>
+    <a class="card playable" href="geometry/index.html" style="--glow:#00e5ff">
+      <span class="tag">2 PLAYER</span>
+      <div class="icon">🔺</div>
+      <h2>Geometry Dash</h2>
+      <p>Jump the spikes, ride the rockets, reach the flag! 8 levels,
+         Zen Mode, and co-op dashing for two.</p>
+      <span class="play">▶ PLAY</span>
+    </a>
+
+    <a class="card playable" href="platformer/index.html" style="--glow:#7dff8a">
+      <span class="tag">2 PLAYER</span>
+      <div class="icon">🍄</div>
+      <h2>Cube Quest</h2>
+      <p>A co-op platform adventure! Run, jump, stomp grumps, grab coins
+         and reach the flag together.</p>
+      <span class="play">▶ PLAY</span>
+    </a>
+
+    <div class="card soon" style="--glow:#ffe94a">
+      <span class="tag">COMING SOON</span>
+      <div class="icon">🚀</div>
+      <h2>Next Up…</h2>
+      <p>Games Zen &amp; Dad might build next:</p>
+      <ul>
+        <li>🛸 Star Squadron — co-op space shooter</li>
+        <li>🏎️ Turbo Cubes — split-screen racing</li>
+        <li>🐍 Snake Battle — head-to-head snakes</li>
+        <li>🧱 Brick Buster — co-op brick breaker</li>
+        <li>⚔️ Dungeon Cubes — top-down co-op adventure</li>
+      </ul>
+    </div>
+  </main>
+
+  <footer>Your characters follow you into every game — customise them in any game's menu!<br>
+  Built with ♥ by Zen &amp; Dad</footer>
+
+  <script>
+    // a few drifting background shapes
+    for (var i = 0; i < 10; i++) {
+      var d = document.createElement('div');
+      d.className = 'shape';
+      var s = 20 + Math.random() * 70;
+      d.style.width = s + 'px';
+      d.style.height = s + 'px';
+      d.style.left = Math.random() * 100 + 'vw';
+      d.style.animationDuration = (16 + Math.random() * 22) + 's';
+      d.style.animationDelay = (-Math.random() * 30) + 's';
+      if (i % 3 === 0) d.style.borderRadius = '50%';
+      if (i % 3 === 1) d.style.transformOrigin = 'center';
+      document.body.appendChild(d);
+    }
+  </script>
 </body>
 </html>

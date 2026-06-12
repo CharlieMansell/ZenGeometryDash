@@ -1,4 +1,4 @@
-name: Build Zen Geometry Dash
+name: Build Zen's Games
 
 on:
   push:
@@ -35,8 +35,8 @@ jobs:
         with:
           name: windows-app
           path: |
-            dist/ZenGeometryDash-Setup.exe
-            dist/ZenGeometryDash-Portable.exe
+            dist/ZensGames-Setup.exe
+            dist/ZensGames-Portable.exe
 
   # Lightweight Go server builds for macOS / Linux (game opens in browser)
   build-server:
@@ -49,10 +49,10 @@ jobs:
           go-version: '1.24'
 
       - name: Build macOS binary (Apple Silicon)
-        run: GOOS=darwin GOARCH=arm64 go build -trimpath -o dist/ZenGeometryDash-mac .
+        run: GOOS=darwin GOARCH=arm64 go build -trimpath -o dist/ZensGames-mac .
 
       - name: Build Linux binary
-        run: GOOS=linux GOARCH=amd64 go build -trimpath -o dist/ZenGeometryDash-linux .
+        run: GOOS=linux GOARCH=amd64 go build -trimpath -o dist/ZensGames-linux .
 
       - uses: actions/upload-artifact@v4
         with:
@@ -69,14 +69,17 @@ jobs:
           merge-multiple: true
           path: dist/
 
-      # The old Go-server exe was replaced by the Electron app; softprops
-      # never deletes assets it didn't upload, so prune it explicitly.
+      # The app was renamed to Zen's Games; softprops never deletes assets
+      # it didn't upload, so prune the old names explicitly.
       - name: Remove stale assets from previous builds
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-        run: gh release delete-asset latest ZenGeometryDash.exe -y || true
+        run: |
+          for asset in ZenGeometryDash.exe ZenGeometryDash-Setup.exe ZenGeometryDash-Portable.exe ZenGeometryDash-mac ZenGeometryDash-linux; do
+            gh release delete-asset latest "$asset" -y || true
+          done
 
       # Every push to the default branch refreshes the "latest" release,
       # so the download link for Zen never changes.
@@ -85,16 +88,17 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
-          name: Zen Geometry Dash — Latest Build
+          name: Zen's Games — Latest Build
           body: |
-            ### 🎮 For Zen: download **ZenGeometryDash-Setup.exe** below!
+            ### 🕹️ For Zen: download **ZensGames-Setup.exe** below!
 
-            Run it once and the game installs with a desktop shortcut — after
-            that just double-click the shortcut to play.
+            Run it once and the arcade installs with a desktop shortcut — after
+            that just double-click the shortcut to play. All the games live
+            inside one app!
 
-            - **ZenGeometryDash-Setup.exe** — Windows installer (recommended)
-            - **ZenGeometryDash-Portable.exe** — single-file version, no install
-            - **ZenGeometryDash-mac / -linux** — opens the game in your browser
+            - **ZensGames-Setup.exe** — Windows installer (recommended)
+            - **ZensGames-Portable.exe** — single-file version, no install
+            - **ZensGames-mac / -linux** — opens the arcade in your browser
 
             Windows may show a SmartScreen warning the first time — click
             "More info" → "Run anyway". That's just because the app isn't
