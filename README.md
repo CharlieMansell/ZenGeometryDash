@@ -15,6 +15,10 @@ installs, no internet needed.
 3. Double-click it. The game opens in the browser automatically.
    - Windows SmartScreen may warn the first time (the exe isn't signed) —
      click **More info → Run anyway**.
+   - If Defender blocks the download, open **Windows Security → Virus &
+     threat protection → Protection history**, find the entry and choose
+     **Actions → Allow**. (Unsigned hobby exes sometimes get false-flagged;
+     the build embeds version info and keeps symbols to minimise this.)
    - Keep the little black window open while playing; close it to quit.
 
 There are also `ZenGeometryDash-mac` and `ZenGeometryDash-linux` builds.

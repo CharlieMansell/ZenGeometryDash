@@ -23,8 +23,14 @@ jobs:
       - name: Check levels are playable
         run: node tools/check-levels.mjs
 
+      # Embed icon, manifest, and version info into the exe. Together with
+      # NOT stripping symbols and keeping the console subsystem, this avoids
+      # Windows Defender heuristics that false-flag bare Go binaries.
+      - name: Embed Windows resources (icon + version info)
+        run: go run github.com/tc-hib/go-winres@v0.3.3 make
+
       - name: Build Windows exe
-        run: GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w -H=windowsgui" -o dist/ZenGeometryDash.exe .
+        run: GOOS=windows GOARCH=amd64 go build -trimpath -o dist/ZenGeometryDash.exe .
 
       - name: Build macOS binary (Apple Silicon)
         run: GOOS=darwin GOARCH=arm64 go build -trimpath -ldflags "-s -w" -o dist/ZenGeometryDash-mac .
@@ -48,8 +54,12 @@ jobs:
           name: Zen Geometry Dash — Latest Build
           body: |
             Download **ZenGeometryDash.exe** below, then double-click it to play!
-            (Windows may show a SmartScreen warning the first time — click
-            "More info" → "Run anyway". It's just because the exe isn't signed.)
+
+            - A small console window opens with the game — **keep it open while
+              playing**, close it to quit.
+            - Windows may show a SmartScreen warning the first time — click
+              "More info" → "Run anyway". That's just because the exe isn't
+              code-signed.
           files: dist/*
           prerelease: false
 
