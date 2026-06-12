@@ -1,0 +1,60 @@
+name: Build Zen Geometry Dash
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Check levels are playable
+        run: node tools/check-levels.mjs
+
+      - name: Build Windows exe
+        run: GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w -H=windowsgui" -o dist/ZenGeometryDash.exe .
+
+      - name: Build macOS binary (Apple Silicon)
+        run: GOOS=darwin GOARCH=arm64 go build -trimpath -ldflags "-s -w" -o dist/ZenGeometryDash-mac .
+
+      - name: Build Linux binary
+        run: GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-s -w" -o dist/ZenGeometryDash-linux .
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZenGeometryDash
+          path: dist/
+
+      # Every push to the default branch refreshes the "latest" release,
+      # so the download link for Zen never changes.
+      - name: Publish "latest" release
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Zen Geometry Dash — Latest Build
+          body: |
+            Download **ZenGeometryDash.exe** below, then double-click it to play!
+            (Windows may show a SmartScreen warning the first time — click
+            "More info" → "Run anyway". It's just because the exe isn't signed.)
+          files: dist/*
+          prerelease: false
+
+      - name: Publish versioned release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*

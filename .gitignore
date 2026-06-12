@@ -1,0 +1,5 @@
+# build outputs
+dist/
+ZenGeometryDash.exe
+ZenGeometryDash-mac
+ZenGeometryDash-linux
