@@ -69,6 +69,15 @@ jobs:
           merge-multiple: true
           path: dist/
 
+      # The old Go-server exe was replaced by the Electron app; softprops
+      # never deletes assets it didn't upload, so prune it explicitly.
+      - name: Remove stale assets from previous builds
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release delete-asset latest ZenGeometryDash.exe -y || true
+
       # Every push to the default branch refreshes the "latest" release,
       # so the download link for Zen never changes.
       - name: Publish "latest" release
